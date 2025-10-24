@@ -1,0 +1,59 @@
+apiVersion: example.crossplane.io/v1
+kind: Bucket
+metadata:
+  name: example-bucket
+  namespace: default
+  uid: 12345678-1234-1234-1234-123456789abc
+  resourceVersion: "12345"
+  generation: 1
+  creationTimestamp: "2024-01-15T10:30:00Z"
+  labels:
+    crossplane.io/composite: example-bucket
+    crossplane.io/claim-name: example-bucket-claim
+    crossplane.io/claim-namespace: default
+  annotations:
+    crossplane.io/external-name: my-example-bucket-12345
+spec:
+  parameters:
+    bucketName: my-example-bucket-12345
+    region: us-west-2
+    versioning: Enabled
+    publicAccessBlock: true
+    tags:
+      - environment:production
+      - team:platform
+  compositionRef:
+    name: function-approval
+  compositionUpdatePolicy: Automatic
+  claimRef:
+    apiVersion: example.crossplane.io/v1
+    kind: XRClaim
+    name: example-bucket-claim
+    namespace: default
+  writeConnectionSecretsToRef:
+    name: example-bucket-connection
+    namespace: default
+status:
+  conditions:
+  - type: Ready
+    status: "True"
+    lastTransitionTime: "2024-01-15T10:35:00Z"
+    reason: Available
+    message: S3 bucket is ready and available
+  - type: Synced
+    status: "True"
+    lastTransitionTime: "2024-01-15T10:35:00Z"
+    reason: SuccessfullyReconciled
+    message: Successfully reconciled S3 bucket
+  connectionDetails:
+    lastPublished: "2024-01-15T10:35:00Z"
+    lastPublishedConnectionDetails:
+      bucketName: "my-example-bucket-12345"
+      region: "us-west-2"
+      arn: "arn:aws:s3:::my-example-bucket-12345"
+  observedGeneration: 1
+  resourceRefs:
+  - apiVersion: s3.aws.crossplane.io/v1beta1
+    kind: Bucket
+    name: my-example-bucket-12345
+    uid: 87654321-4321-4321-4321-cba987654321
