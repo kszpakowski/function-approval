@@ -1,4 +1,4 @@
-module github.com/crossplane/function-template-go
+module github.com/kszpakowski/function-approval
 
 go 1.24.9
 
