@@ -10,6 +10,8 @@ import (
 	"github.com/crossplane/function-sdk-go/response"
 
 	"github.com/kszpakowski/function-approval/input/v1beta1"
+
+	"fmt"
 )
 
 // Function returns whatever response you ask it to.
@@ -21,7 +23,8 @@ type Function struct {
 
 // RunFunction runs the Function.
 func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) (*fnv1.RunFunctionResponse, error) {
-	f.log.Info("Running function", "tag", req.GetMeta().GetTag())
+	log := f.log.WithValues("tag", req.GetMeta().GetTag())
+	log.Info("Running function")
 
 	rsp := response.To(req, response.DefaultTTL)
 
@@ -47,6 +50,24 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}
 
 	// TODO: Add your Function logic here!
+
+	desired, err := request.GetDesiredComposedResources(req)
+	if err != nil {
+		response.Fatal(rsp, errors.Wrapf(err, "cannot get desired composed resources from %T", req))
+		return rsp, nil
+	}
+
+	log.Debug(fmt.Sprintf("DesiredComposed resources: %d", len(desired)))
+
+	observed, err := request.GetObservedComposedResources(req)
+	if err != nil {
+		response.Fatal(rsp, errors.Wrapf(err, "cannot get observed composed resources from %T", req))
+		return rsp, nil
+	}
+
+	log.Debug(fmt.Sprintf("ObservedComposed resources: %d", len(observed)))
+
+
 	response.Normalf(rsp, "I was run with input %q!", in.Example)
 	f.log.Info("I was run!", "input", in.Example)
 
